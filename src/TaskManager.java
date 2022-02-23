@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,22 +20,21 @@ public class TaskManager {
         return tasks.get(id);
     }
 
-    void createNewTask(Task task) {
+    int createNewTask(Task task) {
         if (task.getId() != null) {
             System.out.println("задача с не пустым id");
-            return;
+            throw new IllegalArgumentException();
         }
         if (tasks.containsKey(task.getId())) {
             System.out.println("передана существующая задача");
-            return;
+            throw new IllegalArgumentException();
         }
-
         if (task.getTaskType().equals("subtask")) {
             Subtask subtask = (Subtask) task;
             int epicId = subtask.getEpicId();
             if (!tasks.containsKey(epicId)) {
                 System.out.println("epicId нет в базе");
-                return;
+                throw new IllegalArgumentException();
             }
             subtask.setId(generateNewId());
             tasks.put(subtask.getId(), subtask);
@@ -43,9 +43,11 @@ public class TaskManager {
             List<Integer> subtasksIds = epic.getSubtaskIds();
             subtasksIds.add(subtask.getId());
             updateEpicStatus(epic);
+            return subtask.getId();
         } else {
             task.setId(generateNewId());
             tasks.put(task.getId(), task);
+            return task.getId();
         }
     }
 
@@ -105,10 +107,16 @@ public class TaskManager {
             epic.getSubtaskIds().remove(subtask.getId());
             updateEpicStatus(epic);
         } else if (task.getTaskType().equals("epic")) {
-
+            Epic epic = (Epic) task;
+            if(!epic.getSubtaskIds().isEmpty()) {
+                System.out.println("нельзя удалять, у эпика есть подзадачи");
+                return;
+            } else {
+                tasks.remove(id);
+            }
+        } else {
+            tasks.remove(id);
         }
-        tasks.remove(id);
-
     }
 
     void clearAllTasks() {
@@ -116,6 +124,17 @@ public class TaskManager {
     }
 
     List<Subtask> getAllSubtasksOfEpicById(int id) {
-        return null;
+        Task task = tasks.get(id);
+        if(!task.getTaskType().equals("epic")) {
+            System.out.println("нельзя получить список по id задачи или подзадачи");
+        }
+        Epic epic = (Epic) task;
+        List<Integer> subtasksIds = epic.getSubtaskIds();
+        List<Subtask> subtasks = new ArrayList<>();
+        for (Integer subtaskId : subtasksIds) {
+            Subtask subtask = (Subtask) tasks.get(subtaskId);
+            subtasks.add(subtask);
+        }
+        return subtasks;
     }
 }

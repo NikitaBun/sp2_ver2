@@ -13,6 +13,11 @@ public class Epic extends Task {
         super(name, description, status);
     }
 
+    public Epic(String name, String description, String status, List<Integer> subtaskIds) {
+        super(name, description, status);
+        this.subtaskIds = subtaskIds;
+    }
+
     public List<Integer> getSubtaskIds() {
         return subtaskIds;
     }
@@ -25,4 +30,6 @@ public class Epic extends Task {
     public String getTaskType() {
         return "epic";
     }
+
+
 }
