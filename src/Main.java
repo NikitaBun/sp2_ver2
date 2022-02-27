@@ -7,5 +7,8 @@ public class Main {
         System.out.println(oldTask);
         Task updatedTask = new Task(task1Id, "задача1", "описание", "in_progress");
         System.out.println(updatedTask);
+        Epic epic1 = new Epic("большая задача", "описание", "new");
+        int epic1_ = manager.createNewTask(epic1);
+        System.out.println(epic1);
     }
 }
